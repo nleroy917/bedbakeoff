@@ -1,49 +1,29 @@
-read_bed <- function(file_path) {
-    
-    data <- read.table(gzfile(file_path), header = FALSE, stringsAsFactors = FALSE)
-
-    chrs <- data$V1
-    starts <- data$V2
-    ends <- data$V3
-    names <- data$V4
-    scores <- data$V5
-
-    return(list(chrs = chrs, starts = starts, ends = ends, names = names, scores = scores))
-}
-
-printHelpAndExit <- function() {
-    cat("Usage: Rscript main.R [file_path]\n")
-    quit(status = 1)
-}
+library(data.table)
 
 main <- function() {
-    args <- commandArgs(trailingOnly = TRUE)
-    file_path <- if (length(args) > 0) args[1] else printHelpAndExit()
-    
-    bed_data <- read_bed(file_path)
-    starts <- bed_data$starts
-    ends <- bed_data$ends
-    scores <- bed_data$scores
-    
-    # get region widths
-    widths <- ends - starts
-    
-    # statistics for widths
-    avg_width <- mean(widths)
-    std_width <- sd(widths)
-    var_width <- var(widths)
-    
-    # statistics for scores
-    avg_score <- mean(scores)
-    std_score <- sd(scores)
-    var_score <- var(scores)
-    
-    # print results
-    cat(sprintf("Avg region width: %.2f, Std: %.2f, Var: %.2f\n", 
-                            avg_width, std_width, var_width))
-    cat(sprintf("Avg score: %.2f, Std: %.2f, Var: %.2f\n", 
-                            avg_score, std_score, var_score))
-}
+  args <- commandArgs(trailingOnly = TRUE)
+  if (!length(args)) { cat("Usage: Rscript main.R [file_path]\n"); quit(status = 1) }
+  file_path <- args[1]
 
-# run main function
+  # read only starts (V2), ends (V3), scores (V5); set types to integer/numeric
+  DT <- fread(file_path,
+              col.names = c("chr","start","end","name","score"),
+              colClasses = c("character","integer","integer","character","numeric"),
+              showProgress = FALSE)
+
+  widths <- DT$end - DT$start
+
+  avg_width <- mean(widths)
+  std_width <- sd(widths)
+  var_width <- var(widths)
+
+  avg_score <- mean(DT$score)
+  std_score <- sd(DT$score)
+  var_score <- var(DT$score)
+
+  cat(sprintf("Avg region width: %.2f, Std: %.2f, Var: %.2f\n",
+              avg_width, std_width, var_width))
+  cat(sprintf("Avg score: %.2f, Std: %.2f, Var: %.2f\n",
+              avg_score, std_score, var_score))
+}
 main()
