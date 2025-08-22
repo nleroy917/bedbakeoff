@@ -1,11 +1,16 @@
 import gzip
 import math
+import sys
 
 
 def main():
-    file_path = "../data/example.bed.gz"
+    if len(sys.argv) != 2:
+        print("Usage: python main.py <file_path>")
+        sys.exit(1)
+
+    file_path = sys.argv[1]
     
-    # Initialize counters for streaming statistics
+    # initialize counters for streaming statistics
     count = 0
     width_sum = width_sum_sq = 0
     score_sum = score_sum_sq = 0
@@ -26,7 +31,7 @@ def main():
             score_sum_sq += score ** 2
     
     if count > 0:
-        # Calculate statistics
+        # calculate statistics
         avg_width = width_sum / count
         var_width = (width_sum_sq / count) - (avg_width ** 2)
         std_width = math.sqrt(var_width) if var_width >= 0 else 0
