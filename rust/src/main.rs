@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
+
 use flate2::read::GzDecoder;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
