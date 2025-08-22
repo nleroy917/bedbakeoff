@@ -11,8 +11,14 @@ read_bed <- function(file_path) {
     return(list(chrs = chrs, starts = starts, ends = ends, names = names, scores = scores))
 }
 
+printHelpAndExit <- function() {
+    cat("Usage: Rscript main.R [file_path]\n")
+    quit(status = 1)
+}
+
 main <- function() {
-    file_path <- "../data/example.bed.gz"
+    args <- commandArgs(trailingOnly = TRUE)
+    file_path <- if (length(args) > 0) args[1] else printHelpAndExit()
     
     bed_data <- read_bed(file_path)
     starts <- bed_data$starts
